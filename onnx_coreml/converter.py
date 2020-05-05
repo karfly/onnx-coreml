@@ -386,7 +386,9 @@ def convert(model,  # type: Union[onnx.ModelProto, Text]
             add_custom_layers = False,  # type: bool
             custom_conversion_functions = {}, #type: Dict[Text, Any]
             onnx_coreml_input_shape_map = {}, # type: Dict[Text, List[int,...]]
-            minimum_ios_deployment_target = '12'):
+            minimum_ios_deployment_target = '12',
+            node_meta=None
+            ):
     # type: (...) -> MLModel
     """
     Convert ONNX model to CoreML.
@@ -622,6 +624,11 @@ def convert(model,  # type: Union[onnx.ModelProto, Text]
                         custom_conversion_functions)
 
     for i, node in enumerate(graph.nodes):
+        if node_meta is not None:
+            node_input_name = node.inputs[0]
+            if node_input_name in node_meta:
+                node.meta = node_meta[node_input_name]
+
         print("%d/%d: Converting Node Type %s" %(i+1, len(graph.nodes), node.op_type))
         if disable_coreml_rank5_mapping:
             _convert_node_nd(builder, node, graph, err)

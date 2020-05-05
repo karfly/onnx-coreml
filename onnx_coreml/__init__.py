@@ -9,3 +9,5 @@ from .converter import convert
 __version__ = '1.3'
 
 __all__ = ['convert']
+
+print("You're using onnx-coreml hacked by @karfly!")

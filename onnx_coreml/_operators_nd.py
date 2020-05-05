@@ -1728,6 +1728,15 @@ def _convert_resize(builder, node, graph, err):
     
     mode = 'NN' if mode == 'nearest' else 'BILINEAR'
     scale = node.input_tensors[node.inputs[1]]
+
+    # >>> karfly fix
+    old_scale = scale
+
+    output_shape = node.input_tensors[node.inputs[3]]
+    input_shape = node.meta['input_shape']
+    scale = (int(output_shape[2] / input_shape[2]), int(output_shape[3] / input_shape[3]))
+    print(f"[! karfly fix] new scale = {scale}, old scale = {old_scale}")
+    # <<<
     
     builder.add_upsample(
         name=node.name,
