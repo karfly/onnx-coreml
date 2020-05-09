@@ -1727,6 +1727,8 @@ def _convert_resize(builder, node, graph, err):
         return err.unsupported_op_configuration(builder, node, graph, "Scaling factor unknown!! CoreML does not support dynamic scaling for Resize")
     
     mode = 'NN' if mode == 'nearest' else 'BILINEAR'
+    print(f"[! karfly fix] hard set mode = 'NN', old mode = {mode}")
+    mode = 'NN'
     scale = node.input_tensors[node.inputs[1]]
 
     # >>> karfly fix
@@ -1734,7 +1736,9 @@ def _convert_resize(builder, node, graph, err):
 
     output_shape = node.input_tensors[node.inputs[3]]
     input_shape = node.meta['input_shape']
-    scale = (int(output_shape[2] / input_shape[2]), int(output_shape[3] / input_shape[3]))
+    scale = (int(output_shape[2] // input_shape[2]), int(output_shape[3] // input_shape[3]))
+    if scale[0] == 0 or scale[1] == 0:
+        raise ValueError("[! karfly fix] looks like you're trying to do Downsampling, which is not supported. Use depthwise separable conv 1x1 with constant 1-valued weights instead")
     print(f"[! karfly fix] new scale = {scale}, old scale = {old_scale}")
     # <<<
     
